@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Product = require("../models/productModel");
 
-router.get("/", async (req, res) => {
+router.get("/products", async (req, res) => {
   try {
     const products = await Product.find();
     res.status(200).send({ data: products });
@@ -20,7 +20,7 @@ router.get("/products-by-categories", async (req, res) => {
       {
         $group: {
           _id: "$category",
-          products: { $push: "$ROOT" },
+          products: { $push: "$$ROOT" },
         },
       },
       { $project: { name: "$_id", products: 1, _id: 0 } },

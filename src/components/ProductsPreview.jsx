@@ -33,6 +33,11 @@ export const ProductsPreview = () => {
       .then((data) => setProducts(data?.data))
       .catch((e) => console.log(e));
   }, []);
+
+  const onAddProduct = (product) => {
+    console.log(product);
+  };
+
   return (
     <div className="container mx-auto pb-4 w-2/3 text-white bg-neutral-950">
       <Carousel responsive={responsive}>
@@ -40,7 +45,11 @@ export const ProductsPreview = () => {
           products.map((product, index) => {
             return (
               <div className="w-full p-3">
-                <ProductsPreviewCard key={index} product={product} />
+                <ProductsPreviewCard
+                  key={index}
+                  product={product}
+                  onAddProduct={onAddProduct}
+                />
               </div>
             );
           })}

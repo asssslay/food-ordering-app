@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { ProductsPreviewCard } from "./ProductPreviewCard";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../stores/cart/cartSlice";
 
 export const ProductsPreview = () => {
   const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
 
   // Carousel response
   const responsive = {
@@ -35,7 +38,7 @@ export const ProductsPreview = () => {
   }, []);
 
   const onAddProduct = (product) => {
-    console.log(product);
+    dispatch(addToCart(product));
   };
 
   return (

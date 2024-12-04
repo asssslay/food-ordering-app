@@ -7,32 +7,47 @@ import {
 
 const Menu = () => {
   const dispatch = useDispatch();
-  const products = useSelector(selectAllProducts);
+  const productsState = useSelector(selectAllProducts);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, []);
 
+  useEffect(() => {
+    if (productsState && productsState.products) {
+      console.log('Menu Component State:', {
+        status: productsState.status,
+        products: productsState.products,
+      });
+    }
+  }, [productsState]);
+
+  if (!productsState || !productsState.products) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div>
-      {products.status === "pending" ? (
+    <div className="menu-container">
+      {productsState.status === "pending" ? (
         <div>Loading...</div>
       ) : (
         <div>
-          {Array.isArray(products) &&
-            products.map((menuCategory, index) => {
-              // return <div key={index}>{product.name}</div>; //bug fix
-              return (
-                <>
-                  <h2>{menuCategory.data.name.name}</h2>
-                  <div className="products-list">
-                    {menuCategory.data.products.map((product, index) => {
-                      return <div>{product.name}</div>;
-                    })}
-                  </div>
-                </>
-              );
-            })}
+          {productsState.products && productsState.products.map((category, index) => (
+              <div key={index} className="category-section">
+                <h2 className="category-title">
+                  {category.name && typeof category.name === 'object' 
+                    ? category.name.value 
+                    : category.name || 'Uncategorized'}
+                </h2>
+                <div className="products-list">
+                  {Array.isArray(category.products) && category.products.map((product, productIndex) => (
+                    <div key={`${index}-${productIndex}`} className="product-item">
+                      {product.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+          ))}
         </div>
       )}
     </div>

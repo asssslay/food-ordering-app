@@ -1,8 +1,7 @@
 const express = require("express");
-
 const router = express.Router();
-
 const Product = require("../models/productModel");
+const { ObjectId } = require('mongodb');
 
 router.get("/products", async (req, res) => {
   try {
@@ -23,10 +22,22 @@ router.get("/products-by-categories", async (req, res) => {
           products: { $push: "$$ROOT" },
         },
       },
-      { $project: { name: "$_id", products: 1, _id: 0 } },
+      { 
+        $project: { 
+          _id: { $toString: "$_id" },
+          name: { 
+            name: "$_id",
+            _id: { $toString: new ObjectId() }
+          },
+          products: 1 
+        } 
+      }
     ]);
+    
+    console.log('API Response Data:', JSON.stringify(products, null, 2));
     res.status(200).send({ data: products });
   } catch (err) {
+    console.error('API Error:', err);
     res.status(400).send({ error: err });
   }
 });

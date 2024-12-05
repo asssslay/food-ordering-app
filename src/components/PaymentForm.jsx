@@ -10,7 +10,55 @@ export const PaymentForm = () => {
         expiryDate: '',
         cvv: ''
     });
+    const [errors, setErrors] = useState({});
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+    const validateForm = () => {
+        const newErrors = {};
+        
+        // Validate Card Holder Name (only letters and spaces)
+        if (!formData.cardHolder.trim()) {
+            newErrors.cardHolder = 'Card holder name is required';
+        } else if (!/^[a-zA-Z\s]+$/.test(formData.cardHolder)) {
+            newErrors.cardHolder = 'Card holder name should only contain letters';
+        }
+
+        // Validate Card Number (16 digits, spaces allowed)
+        const cardNumberClean = formData.cardNumber.replace(/\s/g, '');
+        if (!cardNumberClean) {
+            newErrors.cardNumber = 'Card number is required';
+        } else if (!/^\d{16}$/.test(cardNumberClean)) {
+            newErrors.cardNumber = 'Card number must be 16 digits';
+        }
+
+        // Validate Expiry Date (MM/YY format)
+        if (!formData.expiryDate) {
+            newErrors.expiryDate = 'Expiry date is required';
+        } else {
+            const [month, year] = formData.expiryDate.split('/');
+            const currentYear = new Date().getFullYear() % 100;
+            const currentMonth = new Date().getMonth() + 1;
+            
+            if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) {
+                newErrors.expiryDate = 'Invalid format (MM/YY)';
+            } else if (parseInt(month) < 1 || parseInt(month) > 12) {
+                newErrors.expiryDate = 'Invalid month';
+            } else if (parseInt(year) < currentYear || 
+                     (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
+                newErrors.expiryDate = 'Card has expired';
+            }
+        }
+
+        // Validate CVV (3 digits)
+        if (!formData.cvv) {
+            newErrors.cvv = 'CVV is required';
+        } else if (!/^\d{3}$/.test(formData.cvv)) {
+            newErrors.cvv = 'CVV must be 3 digits';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -19,6 +67,7 @@ export const PaymentForm = () => {
         // Format card number with spaces
         if (name === 'cardNumber') {
             formattedValue = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+            formattedValue = formattedValue.substring(0, 19); // Limit to 16 digits + 3 spaces
         }
         // Format expiry date with slash
         if (name === 'expiryDate') {
@@ -26,31 +75,46 @@ export const PaymentForm = () => {
             if (formattedValue.length > 2) {
                 formattedValue = formattedValue.slice(0, 2) + '/' + formattedValue.slice(2);
             }
+            formattedValue = formattedValue.substring(0, 5); // Limit to MM/YY format
+        }
+        // Limit CVV to 3 digits
+        if (name === 'cvv') {
+            formattedValue = value.replace(/\D/g, '').substring(0, 3);
         }
 
         setFormData(prev => ({
             ...prev,
             [name]: formattedValue
         }));
+
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setShowSuccessPopup(true);
-        
-        // Reset form
-        setFormData({
-            cardNumber: '',
-            cardHolder: '',
-            expiryDate: '',
-            cvv: ''
-        });
+        if (validateForm()) {
+            setShowSuccessPopup(true);
+            
+            // Reset form
+            setFormData({
+                cardNumber: '',
+                cardHolder: '',
+                expiryDate: '',
+                cvv: ''
+            });
 
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            setShowSuccessPopup(false);
-            navigate('/');
-        }, 2000);
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                setShowSuccessPopup(false);
+                navigate('/');
+            }, 2000);
+        }
     };
 
     return (
@@ -64,9 +128,10 @@ export const PaymentForm = () => {
                         name="cardHolder"
                         value={formData.cardHolder}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                        required
+                        className={`mt-1 block w-full px-3 py-2 border ${errors.cardHolder ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500`}
+                        placeholder="John Doe"
                     />
+                    {errors.cardHolder && <p className="mt-1 text-sm text-red-500">{errors.cardHolder}</p>}
                 </div>
 
                 <div>
@@ -78,10 +143,9 @@ export const PaymentForm = () => {
                         value={formData.cardNumber}
                         onChange={handleInputChange}
                         placeholder="1234 5678 9012 3456"
-                        maxLength="19"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                        required
+                        className={`mt-1 block w-full px-3 py-2 border ${errors.cardNumber ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500`}
                     />
+                    {errors.cardNumber && <p className="mt-1 text-sm text-red-500">{errors.cardNumber}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -94,10 +158,9 @@ export const PaymentForm = () => {
                             value={formData.expiryDate}
                             onChange={handleInputChange}
                             placeholder="MM/YY"
-                            maxLength="5"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                            required
+                            className={`mt-1 block w-full px-3 py-2 border ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500`}
                         />
+                        {errors.expiryDate && <p className="mt-1 text-sm text-red-500">{errors.expiryDate}</p>}
                     </div>
 
                     <div>
@@ -109,10 +172,9 @@ export const PaymentForm = () => {
                             value={formData.cvv}
                             onChange={handleInputChange}
                             placeholder="123"
-                            maxLength="3"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                            required
+                            className={`mt-1 block w-full px-3 py-2 border ${errors.cvv ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500`}
                         />
+                        {errors.cvv && <p className="mt-1 text-sm text-red-500">{errors.cvv}</p>}
                     </div>
                 </div>
 
@@ -127,14 +189,9 @@ export const PaymentForm = () => {
             {showSuccessPopup && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="absolute inset-0 bg-black opacity-50"></div>
-                    <div className="relative bg-white p-6 rounded-lg shadow-xl">
-                        <div className="flex items-center justify-center mb-4">
-                            <svg className="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-semibold text-center text-gray-900 mb-2">Payment Successful!</h3>
-                        <p className="text-gray-600 text-center">Thank you for your order.</p>
+                    <div className="relative bg-white rounded-lg p-8 text-center">
+                        <h3 className="text-2xl font-semibold text-green-600 mb-4">Payment Successful!</h3>
+                        <p className="text-gray-600">Thank you for your order.</p>
                     </div>
                 </div>
             )}

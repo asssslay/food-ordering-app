@@ -42,7 +42,6 @@ const Menu = () => {
                 <div className="flex flex-row mx-3">
                 {
                     products.products && products.products[activeTabIndex].products.map((product, index) => {
-                        console.log('Product:', product);
                         return (
                            <ProductDetailCard key={index} product={product} onAddProduct={onAddProduct}/>
                         )

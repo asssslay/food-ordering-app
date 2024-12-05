@@ -1,14 +1,11 @@
 import foody from "../assets/icons/foody.svg";
 import cartIcon from "../assets/icons/cart.svg";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import Button from "./elements/Button";
-import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export const Header = ({ cartCount }) => {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         sessionStorage.removeItem('Auth token');
@@ -62,8 +59,8 @@ export const Header = ({ cartCount }) => {
                         </Link>
                     </div>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8">
+                    {/* Navigation Links */}
+                    <div className="flex items-center space-x-8">
                         <Link to="/" onClick={handleHomeClick} className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
                             Home
                         </Link>
@@ -73,108 +70,31 @@ export const Header = ({ cartCount }) => {
                     </div>
 
                     {/* Right Side Items */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        <Link to="/cart" className="relative p-2 text-white hover:text-yellow-500 transition-colors duration-200">
-                            <img src={cartIcon} alt="cart" className="w-6 h-6"/>
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-yellow-500 text-black w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Link>
-                        {isLoggedIn ? (
-                            <Button 
-                                onClick={handleLogout}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200"
-                            >
-                                Log Out
-                            </Button>
-                        ) : (
-                            <div className="flex items-center space-x-4">
-                                <Link 
-                                    to="/login"
-                                    className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200"
-                                >
-                                    Log In
-                                </Link>
-                                <Link 
-                                    to="/register"
-                                    className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200"
-                                >
-                                    Sign Up
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Mobile menu button */}
-                    <div className="md:hidden flex items-center">
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-yellow-500 focus:outline-none"
-                        >
-                            <svg
-                                className="h-6 w-6"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                {isMobileMenuOpen ? (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                ) : (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    <div className="flex items-center space-x-4">
+                        <Link to="/cart" className="text-white hover:text-yellow-500 transition-colors duration-200">
+                            <div className="relative">
+                                <img src={cartIcon} alt="cart" className="w-6 h-6"/>
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-yellow-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-semibold">
+                                        {cartCount}
+                                    </span>
                                 )}
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile menu */}
-            <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden absolute top-20 left-0 w-full bg-black`}>
-                <div className="px-2 pt-2 pb-3 space-y-1">
-                    <Link to="/" onClick={handleHomeClick} className="text-white hover:text-yellow-500 block px-3 py-2 text-base font-medium transition-colors duration-200">
-                        Home
-                    </Link>
-                    <Link to="/" onClick={handleAboutClick} className="text-white hover:text-yellow-500 block px-3 py-2 text-base font-medium transition-colors duration-200">
-                        About
-                    </Link>
-                    <div className="flex items-center justify-between px-3 py-2">
-                        <Link to="/cart" className="relative text-white hover:text-yellow-500 transition-colors duration-200">
-                            <img src={cartIcon} alt="cart" className="w-6 h-6"/>
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-yellow-500 text-black w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Link>
-                        {isLoggedIn ? (
-                            <Button 
-                                onClick={handleLogout}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200"
-                            >
-                                Log Out
-                            </Button>
-                        ) : (
-                            <div className="flex flex-col space-y-2">
-                                <Link 
-                                    to="/login"
-                                    className="block text-white hover:text-yellow-500 text-base font-medium transition-colors duration-200"
-                                >
-                                    Log In
-                                </Link>
-                                <Link 
-                                    to="/register"
-                                    className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-center"
-                                >
-                                    Sign Up
-                                </Link>
                             </div>
-                        )}
+                        </Link>
+                        {isLoggedIn ? 
+                            <button onClick={handleLogout} className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                Logout
+                            </button>
+                            :
+                            <Link to="/login" className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                Login
+                            </Link>
+                        }
                     </div>
                 </div>
             </div>
         </nav>
     )
-};
+}
+
+export default Header;

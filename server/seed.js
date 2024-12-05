@@ -26,7 +26,7 @@ async function main() {
             let newProduct = {
                 name: faker.commerce.productName(),
                 adjective: faker.commerce.productAdjective(),
-                desciption: faker.commerce.productDescription(),
+                description: faker.commerce.productDescription(),
                 price: faker.commerce.price(),
                 category: _.sample(categories),
                 imageUrl: _.sample(imageUrls)

@@ -81,6 +81,11 @@ export const Header = ({ cartCount }) => {
                                 )}
                             </div>
                         </Link>
+                        {isLoggedIn && (
+                            <Link to="/orders" className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                My Orders
+                            </Link>
+                        )}
                         {isLoggedIn ? 
                             <button onClick={handleLogout} className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
                                 Logout

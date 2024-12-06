@@ -7,6 +7,7 @@ const db = require("./db");
 const app = express();
 const productRouter = require("./routes/productRouter");
 const userRouter = require("./routes/userRouter");
+const orderRouter = require("./routes/orderRouter");
 
 var corsOptions = {
   origin: "http://localhost:3000",
@@ -29,3 +30,4 @@ app.listen(PORT, () => {
 
 app.use("/api/", productRouter);
 app.use("/api/", userRouter);
+app.use("/api/", orderRouter);

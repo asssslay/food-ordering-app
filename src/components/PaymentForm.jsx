@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from './elements/Button';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearCart, cartProducts } from '../stores/cart/cartSlice';
+import { clearAddress, getAddress } from '../stores/userInfo/addressSlice';
 
 export const PaymentForm = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const cart = useSelector(cartProducts);
+    const address = useSelector(getAddress);
     const [formData, setFormData] = useState({
         cardNumber: '',
         cardHolder: '',
@@ -99,21 +105,54 @@ export const PaymentForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            setShowSuccessPopup(true);
-            
-            // Reset form
-            setFormData({
-                cardNumber: '',
-                cardHolder: '',
-                expiryDate: '',
-                cvv: ''
-            });
+            const userId = sessionStorage.getItem('User Id');
 
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                setShowSuccessPopup(false);
-                navigate('/');
-            }, 2000);
+            // Create order
+            fetch('http://localhost:8080/api/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    items: cart.map(item => ({
+                        name: item.name,
+                        quantity: item.amount,
+                        price: parseFloat(item.price)
+                    })),
+                    total: cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.amount), 0),
+                    shippingAddress: address
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create order');
+                }
+                return response.json();
+            })
+            .then(() => {
+                setShowSuccessPopup(true);
+                dispatch(clearCart());
+                dispatch(clearAddress());
+                
+                // Reset form
+                setFormData({
+                    cardNumber: '',
+                    cardHolder: '',
+                    expiryDate: '',
+                    cvv: ''
+                });
+
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    setShowSuccessPopup(false);
+                    navigate('/orders');
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error creating order:', error);
+                alert('Failed to process payment. Please try again.');
+            });
         }
     };
 

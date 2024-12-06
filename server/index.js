@@ -6,6 +6,7 @@ const db = require("./db");
 
 const app = express();
 const productRouter = require("./routes/productRouter");
+const userRouter = require("./routes/userRouter");
 
 var corsOptions = {
   origin: "http://localhost:3000",
@@ -27,3 +28,4 @@ app.listen(PORT, () => {
 });
 
 app.use("/api/", productRouter);
+app.use("/api/", userRouter);

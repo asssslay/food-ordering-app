@@ -86,9 +86,14 @@ export const Header = ({ cartCount }) => {
                                 Logout
                             </button>
                             :
-                            <Link to="/login" className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
-                                Login
-                            </Link>
+                            <>
+                                <Link to="/login" className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                    Login
+                                </Link>
+                                <Link to="/register" className="text-white hover:text-yellow-500 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                    Sign Up
+                                </Link>
+                            </>
                         }
                     </div>
                 </div>

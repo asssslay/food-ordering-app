@@ -8,8 +8,8 @@ export const Header = ({ cartCount }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const handleLogout = () => {
-        sessionStorage.removeItem('Auth token');
-        sessionStorage.removeItem('User Id');
+        localStorage.removeItem('Auth token');
+        localStorage.removeItem('User Id');
         window.dispatchEvent(new Event("storage"))
         navigate("/");
     }
@@ -33,7 +33,7 @@ export const Header = ({ cartCount }) => {
 
     useEffect(() => {
         const checkAuthToken = () => {
-            const token = sessionStorage.getItem('Auth token');
+            const token = localStorage.getItem('Auth token');
             if (token) {
                 setIsLoggedIn(true);
             } else {
@@ -42,6 +42,7 @@ export const Header = ({ cartCount }) => {
         }
 
         window.addEventListener('storage', checkAuthToken);
+        checkAuthToken(); // Check auth state on component mount
 
         return () => {
             window.removeEventListener('storage', checkAuthToken);

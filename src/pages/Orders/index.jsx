@@ -11,8 +11,8 @@ const Orders = () => {
         const fetchOrders = async () => {
             try {
                 // Check if user is logged in
-                const token = sessionStorage.getItem('Auth token');
-                const userId = sessionStorage.getItem('User Id');
+                const token = localStorage.getItem('Auth token');
+                const userId = localStorage.getItem('User Id');
                 
                 if (!token || !userId) {
                     navigate('/login');

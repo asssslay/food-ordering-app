@@ -14,7 +14,8 @@ export const PaymentForm = () => {
         cardNumber: '',
         cardHolder: '',
         expiryDate: '',
-        cvv: ''
+        cvv: '',
+        email: ''
     });
     const [errors, setErrors] = useState({});
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -62,6 +63,14 @@ export const PaymentForm = () => {
             newErrors.cvv = 'CVV must be 3 digits';
         }
 
+        // Validate email for guest orders
+        const userId = localStorage.getItem('User Id');
+        if (!userId && !formData.email) {
+            newErrors.email = 'Email is required for guest orders';
+        } else if (!userId && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -105,7 +114,7 @@ export const PaymentForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            const userId = sessionStorage.getItem('User Id');
+            const userId = localStorage.getItem('User Id');
 
             // Create order
             fetch('http://localhost:8080/api/create-order', {
@@ -114,7 +123,8 @@ export const PaymentForm = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId,
+                    userId: userId || 'guest',
+                    guestEmail: !userId ? formData.email : undefined,
                     items: cart.map(item => ({
                         name: item.name,
                         quantity: item.amount,
@@ -131,7 +141,6 @@ export const PaymentForm = () => {
                 return response.json();
             })
             .then(() => {
-                setShowSuccessPopup(true);
                 dispatch(clearCart());
                 dispatch(clearAddress());
                 
@@ -140,14 +149,12 @@ export const PaymentForm = () => {
                     cardNumber: '',
                     cardHolder: '',
                     expiryDate: '',
-                    cvv: ''
+                    cvv: '',
+                    email: ''
                 });
 
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    setShowSuccessPopup(false);
-                    navigate('/orders');
-                }, 2000);
+                // Navigate to success page
+                navigate('/payment-success');
             })
             .catch(error => {
                 console.error('Error creating order:', error);
@@ -217,23 +224,32 @@ export const PaymentForm = () => {
                     </div>
                 </div>
 
+                {!localStorage.getItem('User Id') && (
+                    <div className="mb-4">
+                        <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="email">
+                            Email for Order Confirmation
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 mb-3 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+                            placeholder="Enter your email"
+                        />
+                        {errors.email && (
+                            <p className="text-red-500 text-xs italic">{errors.email}</p>
+                        )}
+                    </div>
+                )}
+
                 <div className="mt-6">
                     <Button type="submit" className="w-full">
                         Pay Now
                     </Button>
                 </div>
             </form>
-
-            {/* Success Popup */}
-            {showSuccessPopup && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="absolute inset-0 bg-black opacity-50"></div>
-                    <div className="relative bg-white rounded-lg p-8 text-center">
-                        <h3 className="text-2xl font-semibold text-green-600 mb-4">Payment Successful!</h3>
-                        <p className="text-gray-600">Thank you for your order.</p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

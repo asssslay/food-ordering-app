@@ -9,6 +9,7 @@ const OrderItemSchema = new Schema({
 
 const OrderSchema = new Schema({
     userId: { type: String, required: true },
+    guestEmail: { type: String, required: function() { return this.userId === 'guest'; } },
     items: [OrderItemSchema],
     total: { type: Number, required: true },
     status: { 

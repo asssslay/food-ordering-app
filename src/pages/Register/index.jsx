@@ -19,8 +19,8 @@ const Register = () => {
       const userCredential = await createUserWithEmailAndPassword(authentication, data.email, data.password);
       const uid = userCredential.user.uid;
       
-      sessionStorage.setItem('User Id', uid);
-      sessionStorage.setItem('Auth token', userCredential._tokenResponse.refreshToken);
+      localStorage.setItem('User Id', uid);
+      localStorage.setItem('Auth token', userCredential._tokenResponse.refreshToken);
       window.dispatchEvent(new Event("storage"));
 
       const response = await fetch('http://localhost:8080/api/create-user', {

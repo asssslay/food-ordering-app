@@ -19,8 +19,8 @@ const Login = () => {
         signInWithEmailAndPassword(authentication, data.email, data.password)
             .then((response) => {
                 uid = response.user.uid;
-                sessionStorage.setItem('User Id', uid);
-                sessionStorage.setItem('Auth token', response._tokenResponse.refreshToken)
+                localStorage.setItem('User Id', uid);
+                localStorage.setItem('Auth token', response._tokenResponse.refreshToken)
                 window.dispatchEvent(new Event("storage"))
                 setLoading(false);
                 toast.success('Successful Login!🎉', {

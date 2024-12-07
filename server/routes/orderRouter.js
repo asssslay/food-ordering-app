@@ -5,12 +5,20 @@ const Order = require('../models/orderModel');
 // Create a new order
 router.post('/create-order', async (req, res) => {
     try {
-        const { userId, items, total, shippingAddress } = req.body;
+        const { items, total, shippingAddress, guestEmail } = req.body;
+        const userId = req.body.userId || 'guest';
 
         // Validate required fields
-        if (!userId || !items || !total || !shippingAddress) {
+        if (!items || !total || !shippingAddress) {
             return res.status(400).json({
                 error: "Missing required fields"
+            });
+        }
+
+        // For guest orders, require an email
+        if (userId === 'guest' && !guestEmail) {
+            return res.status(400).json({
+                error: "Email is required for guest orders"
             });
         }
 
@@ -18,7 +26,9 @@ router.post('/create-order', async (req, res) => {
             userId,
             items,
             total,
-            shippingAddress
+            shippingAddress,
+            guestEmail: userId === 'guest' ? guestEmail : undefined,
+            status: 'Processing'
         });
 
         const savedOrder = await order.save();
